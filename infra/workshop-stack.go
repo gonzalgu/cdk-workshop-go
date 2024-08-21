@@ -14,7 +14,17 @@ type CdkWorkshopStackProps struct {
 	awscdk.StackProps
 }
 
-func NewCdkWorkshopStack(scope constructs.Construct, id string, props *CdkWorkshopStackProps) awscdk.Stack {
+type cdkWorkshopStack struct {
+	awscdk.Stack
+	hcEndpoint awscdk.CfnOutput
+}
+
+type CdkWorkshopStack interface {
+	awscdk.Stack
+	HcEndpoint() awscdk.CfnOutput
+}
+
+func NewCdkWorkshopStack(scope constructs.Construct, id string, props *CdkWorkshopStackProps) CdkWorkshopStack {
 	var sprops awscdk.StackProps
 	if props != nil {
 		sprops = props.StackProps
@@ -32,8 +42,16 @@ func NewCdkWorkshopStack(scope constructs.Construct, id string, props *CdkWorksh
 		ReadCapacity: 10,
 	})
 
-	awsapigateway.NewLambdaRestApi(stack, jsii.String("Endpoint"), &awsapigateway.LambdaRestApiProps{
+	gateway := awsapigateway.NewLambdaRestApi(stack, jsii.String("Endpoint"), &awsapigateway.LambdaRestApiProps{
 		Handler: hitcounter.Handler(),
 	})
-	return stack
+
+	hcEndpoint := awscdk.NewCfnOutput(stack, jsii.String("GatewayUrl"), &awscdk.CfnOutputProps{
+		Value: gateway.Url(),
+	})
+	return &cdkWorkshopStack{stack, hcEndpoint}
+}
+
+func (s *cdkWorkshopStack) HcEndpoint() awscdk.CfnOutput {
+	return s.hcEndpoint
 }
