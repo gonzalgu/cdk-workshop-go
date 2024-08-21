@@ -28,7 +28,7 @@ func NewPipelineStack(scope constructs.Construct, id string, props *PipelineStac
 			Input: repo,
 			Commands: jsii.Strings(
 				"npm install -g aws-cdk",
-				"goenv install 1.23.3",
+				"goenv install 1.22.3",
 				"goenv local 1.22.3",
 				"npx cdk synth",
 			),
