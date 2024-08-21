@@ -17,10 +17,22 @@ func NewPipelineStack(scope constructs.Construct, id string, props *PipelineStac
 		sprops = props.StackProps
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
-	pipelines.CodePipelineSource_GitHub(
+	repo := pipelines.CodePipelineSource_GitHub(
 		jsii.String("gonzalgu/cdk-workshop-go"),
 		jsii.String("main"),
 		nil,
 	)
+	pipelines.NewCodePipeline(stack, jsii.String("Pipeline"), &pipelines.CodePipelineProps{
+		PipelineName: jsii.String("WorkshopPipeline"),
+		Synth: pipelines.NewShellStep(jsii.String("Synth"), &pipelines.ShellStepProps{
+			Input: repo,
+			Commands: jsii.Strings(
+				"npm install -g aws-cdk",
+				"goenv install 1.23.3",
+				"goenv local 1.22.3",
+				"npx cdk synth",
+			),
+		}),
+	})
 	return stack
 }
