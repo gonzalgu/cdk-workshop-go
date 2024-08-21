@@ -22,7 +22,7 @@ func NewPipelineStack(scope constructs.Construct, id string, props *PipelineStac
 		jsii.String("main"),
 		nil,
 	)
-	pipelines.NewCodePipeline(stack, jsii.String("Pipeline"), &pipelines.CodePipelineProps{
+	pipeline := pipelines.NewCodePipeline(stack, jsii.String("Pipeline"), &pipelines.CodePipelineProps{
 		PipelineName: jsii.String("WorkshopPipeline"),
 		Synth: pipelines.NewShellStep(jsii.String("Synth"), &pipelines.ShellStepProps{
 			Input: repo,
@@ -34,5 +34,9 @@ func NewPipelineStack(scope constructs.Construct, id string, props *PipelineStac
 			),
 		}),
 	})
+
+	deploy := NewWorkshopPipelineStage(stack, "Deploy", nil)
+	pipeline.AddStage(deploy, nil)
+
 	return stack
 }
